@@ -8,3 +8,8 @@
         bar
       ]
     }
+  tasks:
+    - name: 关闭防火墙
+      service:
+        name: iptables
+        state: stopped

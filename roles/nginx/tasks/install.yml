@@ -1,0 +1,13 @@
+---
+- name: 安装 Ansible 依赖
+  yum:
+    name: libselinux-python
+
+- name: 添加 epel 仓库
+  yum:
+    name: epel-release
+
+- name: 安装 nginx 和 openssl
+  yum:
+    name: nginx, openssl
+    state: present

@@ -4,11 +4,13 @@
   args:
     chdir: "{{NGINX_HOME}}/ca"
     creates: "{{NGINX_HOME}}/ca/server/server.key"
+
 - name: 为我们的 key 创建一个证书签名请求 csr 文件
   command: openssl req -new -key server/server.key -out server/server.csr -subj '/CN={{CERT_CN}}/O={{CERT_O}}/C={{CERT_C}}'
   args:
     chdir: "{{NGINX_HOME}}/ca"
     creates: "{{NGINX_HOME}}/ca/server/server.csr"
+
 - name: 使用我们私有的 CA key 为刚才的 key 签名
   command: openssl ca -batch -in server/server.csr -cert private/ca.crt -keyfile private/ca.key -out server/server.crt -config "./conf/openssl.conf"
   args:

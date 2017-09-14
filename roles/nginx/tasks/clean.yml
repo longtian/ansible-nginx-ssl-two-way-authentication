@@ -1,0 +1,5 @@
+---
+- name: 清空 CA Root
+  file:
+    path: "{{NGINX_HOME}}/ca"
+    state: "absent"

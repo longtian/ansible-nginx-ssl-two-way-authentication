@@ -1,6 +1,5 @@
 ---
-
-- name: 创建 CA 子目录
+- name: 创建 CA 目录
   file:
     path: "{{ item }}"
     state: "directory"
@@ -10,34 +9,42 @@
     - "{{NGINX_HOME}}/ca/conf"
     - "{{NGINX_HOME}}/ca/server"
     - "{{NGINX_HOME}}/ca/users"
-- name: Conf 目录新建 openssl.conf 文件
+
+- name: 新建 openssl.conf 文件
   template:
     src: "openssl.conf"
     dest: "{{NGINX_HOME}}/ca/conf/openssl.conf"
+
 - name: 生成私钥 key 文件
   command: openssl genrsa -out private/ca.key 2048
   args:
     chdir: "{{NGINX_HOME}}/ca"
     creates: "{{NGINX_HOME}}/ca/private/ca.key"
+
 - name: 生成证书请求 csr 文件
   command: openssl req -new -key private/ca.key -out private/ca.csr -subj '/CN={{CERT_CN}}/O={{CERT_O}}/C={{CERT_C}}'
   args:
     chdir: "{{NGINX_HOME}}/ca"
     creates: "{{NGINX_HOME}}/ca/private/ca.csr"
+
 - name: 生成凭证 crt 文件
   command: openssl x509 -req -days 365 -in private/ca.csr -signkey private/ca.key -out private/ca.crt
   args:
     chdir: "{{NGINX_HOME}}/ca"
     creates: "{{NGINX_HOME}}/ca/private/ca.crt"
-- name: 为我们的 key 设置起始序列号
+
+- name: 设置起始序列号
   template:
     src: 'serial'
     dest: '{{NGINX_HOME}}/ca/serial'
+    force: no
+
 - name: 创建 CA 键库
   file:
     path: '{{NGINX_HOME}}/ca/index.txt'
     state: touch
-- name: 为 "用户证书" 的移除创建一个证书撤销列表
+
+- name: 为用户证书的移除创建一个证书撤销列表
   command: openssl ca -gencrl -out ./private/ca.crl -crldays 7 -config ./conf/openssl.conf
   args:
     chdir: "{{NGINX_HOME}}/ca"

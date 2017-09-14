@@ -1,34 +1,16 @@
-- name: 安装 Ansible 依赖
-  yum:
-    name: libselinux-python
-- name: 添加 epel 仓库
-  yum:
-    name: epel-release
-- name: 安装 nginx 和 openssl
-  yum:
-    name: nginx, openssl
-    state: present
+- include: "install.yml"
 
-- name: 创建 CA Root
-  file:
-    path: "{{NGINX_HOME}}/ca"
-    state: "absent"
-- include: "ca.yml"
+- include: "clean.yml"
+  tags:
+    - "clean"
+
+- include: "create_ca.yml"
+
 - include: "server.yml"
+
 - include: "user.yml"
   vars:
     username: "{{item}}"
   with_items: "{{users}}"
 
-- name: 配置 Nginx
-  template:
-    src: 'ssl.conf'
-    dest: "{{NGINX_HOME}}/conf.d/ssl.conf"
-- name: 重启 Nginx
-  service:
-    name: nginx
-    state: restarted
-- name: 关闭防火墙
-  service:
-    name: iptables
-    state: stopped
+- include: "configure_nginx.yml"

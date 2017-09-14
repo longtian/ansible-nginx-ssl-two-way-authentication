@@ -6,9 +6,18 @@
 
 ### Usage
 
+#### Install
+
 ```bash
 ansible-playbook -i inventories/dev site.yml -u root -k
 ```
+
+#### Add user certificate
+
+```bash
+ansible-playbook -i inventories/dev site.yml -u root -k --skip-tags cleanup
+```
+
 
 ### Reference
 

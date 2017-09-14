@@ -1,25 +1,45 @@
 ---
+- name: 用户名不为空
+  assert:
+    that: not(
+            (username is undefined)
+            or
+            (username is none)
+            or
+            (username | trim == '')
+          )
+    msg: 用户名不可以为空
+
 - name: 创建 {{username}} 用户目录
   file:
     path: "{{NGINX_HOME}}/ca/users/{{username}}"
     state: "directory"
-- name: 为用户创建一个 key
+
+- name: 为 {{username}} 创建一个 key
   command: "openssl genrsa -passout pass:{{userpassword}} -des3 -out ./users/{{username}}/client.key 2048"
   args:
     chdir: "{{NGINX_HOME}}/ca"
+    creates: "{{NGINX_HOME}}/ca/users/{{username}}/client.key"
+
 - name: 为 key 创建一个证书签名请求 csr 文件
   command: "openssl req -passin pass:{{userpassword}} -new -key ./users/{{username}}/client.key -out ./users/{{username}}/client.csr -subj '/CN={{username}}/O={{CERT_O}}/C={{CERT_C}}'"
   args:
     chdir: "{{NGINX_HOME}}/ca"
-- name: 使用我们私有的 CA key 为刚才的 key 签名
+    creates: "{{NGINX_HOME}}/ca/users/{{username}}/client.key"
+
+- name: 使用私有的 CA key 为 {{username}} 的 key 签名
   command: "openssl ca -batch -in ./users/{{username}}/client.csr -cert ./private/ca.crt -keyfile ./private/ca.key -out ./users/{{username}}/client.crt -config ./conf/openssl.conf"
   args:
     chdir: "{{NGINX_HOME}}/ca"
-- name: 将证书转换为大多数浏览器都能识别的 PKCS12 文件
+    creates: "{{NGINX_HOME}}/ca/users/{{username}}/client.crt"
+
+- name: 将 {{username}} 证书转换为大多数浏览器都能识别的 PKCS12 文件
   command: "openssl pkcs12 -passin pass:{{userpassword}} -passout pass: -export -clcerts -in ./users/{{username}}/client.crt -inkey ./users/{{username}}/client.key -out ./users/{{username}}/client.p12"
   args:
     chdir: "{{NGINX_HOME}}/ca"
-- name: 下载
+    creates: "{{NGINX_HOME}}/ca/users/{{username}}/client.p12"
+
+- name: 下载 {{username}} 的证书到本地
   fetch:
     src: "{{NGINX_HOME}}/ca/users/{{username}}/client.p12"
     dest: "{{username}}.p12"

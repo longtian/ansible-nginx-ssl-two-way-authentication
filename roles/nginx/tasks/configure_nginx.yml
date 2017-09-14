@@ -1,0 +1,6 @@
+---
+- name: 配置 Nginx
+  template:
+    src: 'ssl.conf'
+    dest: "{{NGINX_HOME}}/conf.d/ssl.conf"
+  notify: restart nginx
