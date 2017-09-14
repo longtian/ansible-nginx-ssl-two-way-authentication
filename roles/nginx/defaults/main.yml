@@ -1,0 +1,6 @@
+---
+NGINX_HOME: /etc/nginx
+CERT_C: CN
+CERT_CN: example.com
+CERT_O: Example Ltd
+userpassword: catfish

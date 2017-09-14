@@ -1,0 +1,10 @@
+---
+- hosts: all
+  roles:
+    - {
+      role: nginx ,
+      users: [
+        foo,
+        bar
+      ]
+    }
